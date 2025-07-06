@@ -25,22 +25,33 @@ app.get("/home", (req, res) => {
 })
 app.post("/create", async (req, res) => {
     const { name, email, password, age } = req.body;
-    try {
-        const user = await userModel.create({
-            name,
-            email,
-            password,
-            age,
+    bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(password, salt, async (err, hash) => {
+            if (err) return res.send("something went wrong")
+
+            try {
+                const user = await userModel.create({
+                    name,
+                    email,
+                    password: hash,
+                    age,
+                })
+
+                console.log("successfully created a user !")
+                console.log(user);
+                res.redirect("/home")
+
+            }
+            catch (err) {
+                res.send("something went wrong")
+                console.error("Cannot create Account " + err + " everything ok !!")
+            }
         })
 
-        console.log("successfully created a user !")
-        console.log(user);
-        res.redirect("/home")
+    })
 
-    }
-    catch (err) {
-        console.error("Cannot create Account " + err + " everything ok !!")
-    }
+
+
 })
 
 app.listen(PORT, (req, res) => {
