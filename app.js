@@ -23,6 +23,26 @@ app.get("/", (req, res) => {
 app.get("/home", (req, res) => {
     res.render("home")
 })
+app.get("/logout", (req, res) => {
+    res.clearCookie("token");
+    res.redirect("/home");
+})
+app.get("/login", (req, res) => {
+    res.render("login")
+})
+app.get("/loggedin", async (req, res) => {
+    try {
+
+        const user = jwt.verify(req.cookies.token, jwtpass)
+        const userName = await userModel.findOne({ email: user.email });
+        console.log(userName);
+        res.render("logged", { user: userName });
+    }
+    catch (err) {
+        console.error("something went wrong " + err);
+
+    }
+})
 app.post("/create", async (req, res) => {
     const { name, email, password, age } = req.body;
     bcrypt.genSalt(10, (err, salt) => {
@@ -39,7 +59,10 @@ app.post("/create", async (req, res) => {
 
                 console.log("successfully created a user !")
                 console.log(user);
-                res.redirect("/home")
+                const token = jwt.sign({ email: email }, jwtpass);
+                console.log(token);
+                res.cookie("token", token);
+                res.redirect("/loggedin")
 
             }
             catch (err) {
