@@ -1,0 +1,48 @@
+const express = require("express");
+const app = express();
+const cookerParser = require("cookie-parser");
+const path = require("path");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+const userModel = require("./model/model.js");
+const cookieParser = require("cookie-parser");
+dotenv.config();
+const PORT = process.env.PORT;
+const jwtpass = process.env.jwtpass;
+
+app.set("view engine", "ejs")
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/", (req, res) => {
+    res.redirect("/home")
+})
+app.get("/home", (req, res) => {
+    res.render("home")
+})
+app.post("/create", async (req, res) => {
+    const { name, email, password, age } = req.body;
+    try {
+        const user = await userModel.create({
+            name,
+            email,
+            password,
+            age,
+        })
+
+        console.log("successfully created a user !")
+        console.log(user);
+        res.redirect("/home")
+
+    }
+    catch (err) {
+        console.error("Cannot create Account " + err + " everything ok !!")
+    }
+})
+
+app.listen(PORT, (req, res) => {
+    console.log("your application is live on PORT:" + PORT);
+})
