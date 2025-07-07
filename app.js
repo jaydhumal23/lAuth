@@ -30,6 +30,28 @@ app.get("/logout", (req, res) => {
 app.get("/login", (req, res) => {
     res.render("login")
 })
+
+app.post("/logincheck", async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const user = await userModel.findOne({ email: email })
+        bcrypt.compare(password, user.password, (err, result) => {
+            if (result) {
+                const token = jwt.sign({ email: user.email }, jwtpass);
+                res.cookie("token", token);
+                res.redirect("loggedin")
+
+            }
+            else {
+                res.send("something went wrong")
+            }
+        })
+    }
+    catch (err) {
+        res.send("something went wrong ")
+        console.error(err)
+    }
+})
 app.get("/loggedin", async (req, res) => {
     try {
 
