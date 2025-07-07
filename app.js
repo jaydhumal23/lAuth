@@ -21,6 +21,7 @@ app.get("/", (req, res) => {
     res.redirect("/home")
 })
 app.get("/home", (req, res) => {
+    res.clearCookie("token");
     res.render("home")
 })
 app.get("/logout", (req, res) => {
@@ -28,6 +29,7 @@ app.get("/logout", (req, res) => {
     res.redirect("/home");
 })
 app.get("/login", (req, res) => {
+    res.clearCookie("token");
     res.render("login")
 })
 
